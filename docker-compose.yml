@@ -1,0 +1,37 @@
+# This file helps you run the application and a PostgreSQL database locally.
+# It simulates the multi-container environment you'd have in OpenShift.
+# To run: `docker-compose up --build`
+
+version: '3.8'
+
+services:
+  # The PostgreSQL Database Service
+  db:
+    image: postgres:14-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: fooddb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432" # Expose postgres port to the host machine for inspection
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # The Java Application Service
+  app:
+    build: . # Build the image from the Dockerfile in the current directory
+    container_name: food_ordering_app
+    depends_on:
+      - db # This service will start only after the 'db' service is ready
+    ports:
+      - "8080:8080" # Expose the app's port to the host machine
+    environment:
+      # These environment variables override application.properties
+      # This is how you'll configure it in OpenShift as well
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fooddb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+
+volumes:
+  postgres_data: # A named volume to persist database data

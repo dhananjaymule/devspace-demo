@@ -1,0 +1,82 @@
+schemaVersion: 2.2.0
+metadata:
+  name: java-postgres-food-app
+  version: 1.0.0
+  displayName: "Java Spring Boot & PostgreSQL"
+  description: "A Spring Boot application with a PostgreSQL backend, ready for OpenShift Dev Spaces."
+  tags: ["Java", "Spring", "PostgreSQL", "Maven", "Swagger"]
+
+parent:
+  uri: "https://registry.redhat.io/devspaces/udi-rhel8:latest"
+
+components:
+  # --- Maven Tooling ---
+  # Defines the container image and settings for our development tools.
+  - name: tools
+    container:
+      image: "registry.redhat.io/devspaces/udi-rhel8:latest"
+      memoryLimit: "2Gi"
+      mountSources: true
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+      endpoints:
+        - name: app-ui
+          targetPort: 8080
+          protocol: http
+        - name: swagger-ui
+          targetPort: 8080
+          path: /swagger-ui.html
+          protocol: http
+      env:
+        # Pass the database connection details to the application.
+        # The 'db' hostname matches the Kubernetes service name below.
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://db:5432/fooddb
+        - name: SPRING_DATASOURCE_USERNAME
+          value: user
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: password
+
+  # --- PostgreSQL Database ---
+  # This component deploys a PostgreSQL database directly into the Kubernetes namespace.
+  - name: database
+    kubernetes:
+      uri: database.yaml
+
+  # --- Maven Repository Volume ---
+  # A dedicated volume to persist Maven dependencies, speeding up subsequent builds.
+  - name: m2
+    volume:
+      size: 1Gi
+
+commands:
+  # 1. Installs dependencies and builds the application JAR.
+  - id: 1-build
+    exec:
+      component: tools
+      commandLine: "mvn clean package"
+      workingDir: ${PROJECTS_ROOT}/food-ordering-app
+      group:
+        kind: build
+        isDefault: true
+
+  # 2. Runs the compiled Java application.
+  - id: 2-run
+    exec:
+      component: tools
+      commandLine: "java -jar target/food-ordering-app-0.0.1-SNAPSHOT.jar"
+      workingDir: ${PROJECTS_ROOT}/food-ordering-app
+      group:
+        kind: run
+        isDefault: true
+
+  # 3. (Optional) Debug command.
+  - id: 3-debug
+    exec:
+      component: tools
+      commandLine: "java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n -jar target/food-ordering-app-0.0.1-SNAPSHOT.jar"
+      workingDir: ${PROJECTS_ROOT}/food-ordering-app
+      group:
+        kind: debug
+        isDefault: true

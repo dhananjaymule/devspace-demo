@@ -1,0 +1,40 @@
+# This manifest defines the PostgreSQL Deployment and Service.
+# The devfile consumes this to create the database component.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: registry.redhat.io/rhel9/postgresql-15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: fooddb
+            - name: POSTGRES_USER
+              value: user
+            - name: POSTGRES_PASSWORD
+              value: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db # The service name 'db' is used as the hostname in the JDBC URL
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
