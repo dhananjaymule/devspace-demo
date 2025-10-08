@@ -60,7 +60,7 @@ components:
         - name: pgdata
           path: /var/lib/pgsql/data
       endpoints:
-        - name: postgres-internal
+        - name: postgres
           targetPort: 5432
           exposure: internal
 
@@ -102,3 +102,4 @@ commands:
       group:
         kind: debug
         isDefault: true
+
