@@ -18,7 +18,7 @@ components:
   - name: tools
     container:
       image: "registry.redhat.io/devspaces/udi-rhel8:latest"
-      memoryLimit: "2Gi"
+      memoryLimit: "10Gi"
       volumeMounts:
         - name: m2
           path: /home/user/.m2
