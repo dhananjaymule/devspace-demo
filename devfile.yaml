@@ -6,7 +6,7 @@ metadata:
   description: "A Spring Boot application with a PostgreSQL backend, ready for OpenShift Dev Spaces."
   tags: ["Java", "Spring", "PostgreSQL", "Maven", "Swagger"]
 
-projects:
+starterProjects:
   - name: devspace-demo
     git:
       remotes:
