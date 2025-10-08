@@ -6,11 +6,14 @@ metadata:
   description: "A Spring Boot application with a PostgreSQL backend, ready for OpenShift Dev Spaces."
   tags: ["Java", "Spring", "PostgreSQL", "Maven", "Swagger"]
 
-starterProjects:
+projects:
   - name: devspace-demo
     git:
       remotes:
         origin: "https://github.com/dhananjaymule/devspace-demo.git"
+
+parent:
+  uri: "registry.redhat.io/devspaces/udi-rhel8:latest"
 
 components:
   # --- Maven Tooling ---
@@ -18,7 +21,7 @@ components:
   - name: tools
     container:
       image: "registry.redhat.io/devspaces/udi-rhel8:latest"
-      memoryLimit: "10Gi"
+      memoryLimit: "2Gi"
       volumeMounts:
         - name: m2
           path: /home/user/.m2
@@ -32,23 +35,40 @@ components:
           protocol: http
       env:
         # Pass the database connection details to the application.
-        # The 'db' hostname matches the Kubernetes service name below.
+        # The 'postgres' hostname matches the component name below.
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://db:5432/fooddb
+          value: jdbc:postgresql://postgres:5432/fooddb
         - name: SPRING_DATASOURCE_USERNAME
-          value: user
+          value: postgres
         - name: SPRING_DATASOURCE_PASSWORD
-          value: password
+          value: postgres
 
-  # --- PostgreSQL Database ---
-  # This component deploys a PostgreSQL database directly into the Kubernetes namespace.
-  - name: database
-    kubernetes:
-      uri: database.yaml
+  # --- PostgreSQL Database Component ---
+  # This component defines the PostgreSQL database as a dedicated container.
+  - name: postgres
+    container:
+      image: quay.io/sclorg/postgresql-15-c9s:c9s
+      memoryLimit: 512M
+      env:
+        - name: POSTGRESQL_USER
+          value: postgres
+        - name: POSTGRESQL_PASSWORD
+          value: postgres
+        - name: POSTGRESQL_DATABASE
+          value: fooddb
+      volumeMounts:
+        - name: pgdata
+          path: /var/lib/pgsql/data
+      endpoints:
+        - name: postgres-internal
+          targetPort: 5432
+          exposure: internal
 
-  # --- Maven Repository Volume ---
-  # A dedicated volume to persist Maven dependencies, speeding up subsequent builds.
+  # --- Persistent Volumes ---
   - name: m2
+    volume:
+      size: 1Gi
+  - name: pgdata
     volume:
       size: 1Gi
 
