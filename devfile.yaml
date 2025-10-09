@@ -9,16 +9,21 @@ metadata:
 projects:
   - name: devspace-demo
     git:
+      checkoutFrom:
+        revision: main
       remotes:
         origin: "https://github.com/dhananjaymule/devspace-demo.git"
+
+parent:
+  uri: "registry.redhat.io/devspaces/udi-rhel8:latest"
 
 components:
   # --- Maven Tooling ---
   # Defines the container image and settings for our development tools.
   - name: tools
     container:
-      image: "quay.io/devfile/universal-developer-image:latest"
-      memoryLimit: "4Gi"
+      image: "registry.redhat.io/devspaces/udi-rhel8:latest"
+      memoryLimit: "2Gi"
       volumeMounts:
         - name: m2
           path: /home/user/.m2
@@ -32,9 +37,9 @@ components:
           protocol: http
       env:
         # Pass the database connection details to the application.
-        # The 'postgres' hostname matches the component name below.
+        # The 'localhost' hostname is used for pod-internal communication.
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgres:5432/fooddb
+          value: jdbc:postgresql://localhost:5432/fooddb
         - name: SPRING_DATASOURCE_USERNAME
           value: postgres
         - name: SPRING_DATASOURCE_PASSWORD
@@ -44,7 +49,7 @@ components:
   # This component defines the PostgreSQL database as a dedicated container.
   - name: postgres
     container:
-      image: registry.redhat.io/rhel9/postgresql-15
+      image: quay.io/sclorg/postgresql-15-c9s:c9s
       memoryLimit: 512M
       env:
         - name: POSTGRESQL_USER
@@ -60,6 +65,7 @@ components:
         - name: postgres
           targetPort: 5432
           exposure: internal
+          protocol: tcp
 
   # --- Persistent Volumes ---
   - name: m2
@@ -80,11 +86,12 @@ commands:
         kind: build
         isDefault: true
 
-  # 2. Runs the compiled Java application.
+  # 2. Runs the compiled Java application after ensuring the database is ready.
   - id: 2-run
     exec:
       component: tools
-      commandLine: "java -jar target/food-ordering-app-0.0.1-SNAPSHOT.jar"
+      # This command now uses 'pg_isready' to ensure the database can accept connections before starting.
+      commandLine: "echo 'Waiting for PostgreSQL to be ready...'; while ! pg_isready -h localhost -p 5432 -q; do sleep 1; done; echo 'PostgreSQL is ready.'; java -jar target/food-ordering-app-0.0.1-SNAPSHOT.jar"
       workingDir: ${PROJECTS_ROOT}/devspace-demo
       group:
         kind: run
@@ -94,13 +101,18 @@ commands:
   - id: 3-debug
     exec:
       component: tools
-      commandLine: "java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n -jar target/food-ordering-app-0.0.1-SNAPSHOT.jar"
+      # Add the same robust waiting mechanism to the debug command.
+      commandLine: "echo 'Waiting for PostgreSQL to be ready...'; while ! pg_isready -h localhost -p 5432 -q; do sleep 1; done; echo 'PostgreSQL is ready.'; java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n -jar target/food-ordering-app-0.0.1-SNAPSHOT.jar"
       workingDir: ${PROJECTS_ROOT}/devspace-demo
       group:
         kind: debug
         isDefault: true
 
+# --- Workspace Lifecycle Events ---
+# Defines commands that run automatically at different stages of the workspace lifecycle.
 events:
-  preStart:
+  # The 'postStart' event runs after all components are started. This is the correct place for a build command.
+  postStart:
+    # We reference the '1-build' command by its string ID.
     - 1-build
 
