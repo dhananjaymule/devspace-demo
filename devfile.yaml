@@ -100,3 +100,9 @@ commands:
         kind: debug
         isDefault: true
 
+events:
+  # The 'preStart' event runs after the project is cloned but before the workspace is fully ready.
+  preStart:
+    # We reference the '1-build' command by its ID to automatically build the project.
+    - id: 1-build
+
