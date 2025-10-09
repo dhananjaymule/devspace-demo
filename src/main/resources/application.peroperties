@@ -1,0 +1,22 @@
+# Spring Boot application server configuration
+server.port=8080
+
+# PostgreSQL Database Connection Settings
+# This URL points to a PostgreSQL database named 'fooddb' on the local machine.
+spring.datasource.url=jdbc:postgresql://localhost:5432/fooddb
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA (Java Persistence API) Configuration
+# 'update' will create the schema if it doesn't exist, or update it if it has changed.
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Data Source Initialization
+# This ensures that data.sql is always run on startup to populate the database.
+spring.sql.init.mode=always
+
+# SpringDoc OpenAPI (Swagger) Configuration
+# This enables the Swagger UI and sets the path to access it.
+springdoc.swagger-ui.path=/swagger-ui.html
