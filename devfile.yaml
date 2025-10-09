@@ -17,8 +17,8 @@ components:
   # Defines the container image and settings for our development tools.
   - name: tools
     container:
-      image: "registry.access.redhat.com/ubi9/openjdk-17:1.20-2.1721752931"
-      memoryLimit: "2Gi"
+      image: "quay.io/devfile/universal-developer-image:latest"
+      memoryLimit: "4Gi"
       volumeMounts:
         - name: m2
           path: /home/user/.m2
