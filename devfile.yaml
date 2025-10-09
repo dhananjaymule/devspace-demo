@@ -14,9 +14,6 @@ projects:
       remotes:
         origin: "https://github.com/dhananjaymule/devspace-demo.git"
 
-parent:
-  uri: "registry.redhat.io/devspaces/udi-rhel8:latest"
-
 components:
   # --- Maven Tooling ---
   # Defines the container image and settings for our development tools.
