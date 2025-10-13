@@ -41,6 +41,8 @@ components:
           value: postgres
         - name: SPRING_DATASOURCE_PASSWORD
           value: postgres
+        - name: SPRING_JPA_DATABASE_PLATFORM
+          value: org.hibernate.dialect.PostgreSQLDialect
 
   # --- PostgreSQL Database Component ---
   # This component defines the PostgreSQL database as a dedicated container.
