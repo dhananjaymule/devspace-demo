@@ -48,8 +48,8 @@ components:
   # This component defines the PostgreSQL database as a dedicated container.
   - name: postgres
     container:
-      image: quay.io/sclorg/postgresql-15-c9s:c9s
-      memoryLimit: 512M
+      image: registry.redhat.io/rhel9/postgresql-15
+      memoryLimit: 1G
       env:
         - name: POSTGRESQL_USER
           value: postgres
@@ -57,6 +57,8 @@ components:
           value: postgres
         - name: POSTGRESQL_DATABASE
           value: fooddb
+        - name: POSTGRESQL_ADMIN_PASSWORD
+          value: postgres
       volumeMounts:
         - name: pgdata
           path: /var/lib/pgsql/data
