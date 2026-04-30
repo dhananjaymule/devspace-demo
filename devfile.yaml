@@ -9,8 +9,6 @@ metadata:
 projects:
   - name: devspace-demo
     git:
-      checkoutFrom:
-        revision: main
       remotes:
         origin: "https://github.com/dhananjaymule/devspace-demo.git"
 
