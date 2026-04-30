@@ -44,17 +44,18 @@ components:
 
   # --- Node.js Tooling for Vue 3 (NEW) ---
   # This component provides the runtime to run Vite and your Vue frontend.
-- name: nodejs-frontend
+  - name: nodejs-frontend
     container:
       image: registry.access.redhat.com/ubi8/nodejs-18:latest
       memoryLimit: 1024Mi
       mountSources: true
-      command: ['tail', '-f', '/dev/null'] # 📍 ADD THIS LINE
+      command: ['tail', '-f', '/dev/null'] # 📍 Keeps the S2I container awake
       endpoints:
         - name: vue-app
           targetPort: 5173
           exposure: public
           protocol: http
+
   # --- PostgreSQL Database Component ---
   # This component defines the PostgreSQL database as a dedicated container.
   - name: postgres
@@ -120,10 +121,10 @@ commands:
         kind: debug
         isDefault: true
 
-# 4. Install Vue dependencies
+  # 4. Install Vue dependencies
   - id: 4-install-frontend
     exec:
-      component: nodejs-frontend # 📍 Run inside the existing tools container
+      component: nodejs-frontend 
       commandLine: "npm install"
       workingDir: ${PROJECTS_ROOT}/devspace-demo/frontend
       group:
@@ -133,7 +134,7 @@ commands:
   # 5. Start the Vue 3 development server
   - id: 5-run-frontend
     exec:
-      component: nodejs-frontend # 📍 Run inside the existing tools container
+      component: nodejs-frontend
       commandLine: "npm run dev"
       workingDir: ${PROJECTS_ROOT}/devspace-demo/frontend
       group:
@@ -146,4 +147,4 @@ events:
   # The 'postStart' event runs after all components are started. 
   postStart:
     - 1-build
-    - 4-install-frontend # Automatically installs node_modules upon workspace start
+    - 4-install-frontend
