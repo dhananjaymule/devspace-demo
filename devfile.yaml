@@ -36,9 +36,9 @@ components:
         - name: SPRING_DATASOURCE_URL
           value: jdbc:postgresql://localhost:5432/fooddb
         - name: SPRING_DATASOURCE_USERNAME
-          value: postgres
+          value: fooddb
         - name: SPRING_DATASOURCE_PASSWORD
-          value: postgres
+          value: fooddb
         - name: SPRING_JPA_DATABASE_PLATFORM
           value: org.hibernate.dialect.PostgreSQLDialect
 
@@ -64,9 +64,9 @@ components:
       memoryLimit: 1G
       env:
         - name: POSTGRESQL_USER
-          value: postgres
+          value: fooddb
         - name: POSTGRESQL_PASSWORD
-          value: postgres
+          value: fooddb
         - name: POSTGRESQL_DATABASE
           value: fooddb
         - name: POSTGRESQL_ADMIN_PASSWORD
