@@ -2,9 +2,9 @@ schemaVersion: 2.2.0
 metadata:
   name: java-postgres-food-app
   version: 1.0.0
-  displayName: "Java Spring Boot & PostgreSQL"
-  description: "A Spring Boot application with a PostgreSQL backend, ready for OpenShift Dev Spaces."
-  tags: ["Java", "Spring", "PostgreSQL", "Maven", "Swagger"]
+  displayName: "Java Spring Boot & PostgreSQL & Vue"
+  description: "A full-stack Spring Boot, PostgreSQL, and Vue.js application, ready for OpenShift Dev Spaces."
+  tags: ["Java", "Spring", "PostgreSQL", "Maven", "Vuejs", "Nodejs"]
 
 projects:
   - name: devspace-demo
@@ -43,6 +43,19 @@ components:
           value: postgres
         - name: SPRING_JPA_DATABASE_PLATFORM
           value: org.hibernate.dialect.PostgreSQLDialect
+
+  # --- Node.js Tooling for Vue 3 (NEW) ---
+  # This component provides the runtime to run Vite and your Vue frontend.
+  - name: nodejs-frontend
+    container:
+      image: registry.access.redhat.com/ubi8/nodejs-18:latest
+      memoryLimit: 1024Mi
+      mountSources: true
+      endpoints:
+        - name: vue-app
+          targetPort: 5173
+          exposure: public
+          protocol: http
 
   # --- PostgreSQL Database Component ---
   # This component defines the PostgreSQL database as a dedicated container.
@@ -109,11 +122,30 @@ commands:
         kind: debug
         isDefault: true
 
+  # 4. Install Vue dependencies (NEW)
+  - id: 4-install-frontend
+    exec:
+      component: nodejs-frontend
+      commandLine: "npm install"
+      workingDir: ${PROJECTS_ROOT}/devspace-demo/frontend
+      group:
+        kind: build
+        isDefault: false
+
+  # 5. Start the Vue 3 development server (NEW)
+  - id: 5-run-frontend
+    exec:
+      component: nodejs-frontend
+      commandLine: "npm run dev"
+      workingDir: ${PROJECTS_ROOT}/devspace-demo/frontend
+      group:
+        kind: run
+        isDefault: false
+
 # --- Workspace Lifecycle Events ---
 # Defines commands that run automatically at different stages of the workspace lifecycle.
 events:
-  # The 'postStart' event runs after all components are started. This is the correct place for a build command.
+  # The 'postStart' event runs after all components are started. 
   postStart:
-    # We reference the '1-build' command by its string ID.
     - 1-build
-
+    - 4-install-frontend # Automatically installs node_modules upon workspace start
