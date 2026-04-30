@@ -120,20 +120,20 @@ commands:
         kind: debug
         isDefault: true
 
-  # 4. Install Vue dependencies (NEW)
+# 4. Install Vue dependencies
   - id: 4-install-frontend
     exec:
-      component: nodejs-frontend
+      component: tools # 📍 Run inside the existing tools container
       commandLine: "npm install"
       workingDir: ${PROJECTS_ROOT}/devspace-demo/frontend
       group:
         kind: build
         isDefault: false
 
-  # 5. Start the Vue 3 development server (NEW)
+  # 5. Start the Vue 3 development server
   - id: 5-run-frontend
     exec:
-      component: nodejs-frontend
+      component: tools # 📍 Run inside the existing tools container
       commandLine: "npm run dev"
       workingDir: ${PROJECTS_ROOT}/devspace-demo/frontend
       group:
