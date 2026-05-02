@@ -45,9 +45,12 @@ public class StatusController {
     @PostMapping("/search")
     public List<FoodItem> getItemsByIds(@RequestBody ItemLookupRequest request) {
         // Spring Data JPA provides findAllById(Iterable<ID> ids) out of the box
-
-
         return foodItemRepository.findByIdIn(request.getIds());
+    }
+
+    @GetMapping("/items")
+    public List<FoodItem> getAllItems() {
+        return foodItemRepository.findAll(); // Fetches everything from the DB
     }
 
 }
