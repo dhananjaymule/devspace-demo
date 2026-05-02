@@ -50,6 +50,8 @@ public class FoodOrderingAppApplication {
 			} catch (NumberFormatException e) {
 				System.out.println("Invalid input. Please enter numbers only.");
 				return;
+			} finally{
+				scanner.close();
 			}
 
 			List<FoodItem> selectedItems = foodItemRepository.findByIdIn(selectedIds);

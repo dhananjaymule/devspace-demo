@@ -1,14 +1,3 @@
-<template>
-  <div class="app-container">
-    <h1>Vue 3 + Spring Boot + OpenShift Dev Spaces</h1>
-    <div class="card">
-      <button @click="fetchData">Test Backend Connection</button>
-      <p v-if="backendResponse"><strong>Response:</strong> {{ backendResponse }}</p>
-      <p v-if="error" style="color: red;"><strong>Error:</strong> {{ error }}</p>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref } from 'vue'
 
@@ -19,32 +8,37 @@ const fetchData = async () => {
   error.value = null
   backendResponse.value = null
   try {
-    // This will be proxied to http://localhost:8080/api/data by Vite
-    const response = await fetch('/api/data') 
-    if (!response.ok) throw new Error('Network response was not ok')
-    const data = await response.text() // Or .json() if your backend returns JSON
+    // Calling our proxied route
+    const response = await fetch('/api/status') 
+    
+    if (!response.ok) {
+      throw new Error(`Backend returned ${response.status}`)
+    }
+    
+    // Check if your status page returns JSON or String
+    const data = await response.text() 
     backendResponse.value = data
   } catch (err) {
-    error.value = err.message
+    error.value = `Connection Failed: ${err.message}`
   }
 }
 </script>
 
-<style scoped>
-.app-container {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin-top: 50px;
-}
-.card {
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  display: inline-block;
-  margin-top: 20px;
-}
-button {
-  padding: 10px 20px;
-  cursor: pointer;
-}
-</style>
+<template>
+  <div style="text-align: center; margin-top: 50px;">
+    <h1>Vue 3 Frontend</h1>
+    <button @click="fetchData" style="padding: 10px 20px; cursor: pointer;">
+      Check Backend Status
+    </button>
+    
+    <div v-if="backendResponse" style="margin-top: 20px; color: green;">
+      <h3>Success!</h3>
+      <pre>{{ backendResponse }}</pre>
+    </div>
+    
+    <div v-if="error" style="margin-top: 20px; color: red;">
+      <h3>Error</h3>
+      <p>{{ error }}</p>
+    </div>
+  </div>
+</template>
