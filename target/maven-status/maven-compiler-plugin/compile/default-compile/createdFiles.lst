@@ -1,6 +1,7 @@
 com/example/foodorderingapp/repository/FoodItemRepository.class
 com/example/foodorderingapp/model/FoodItem.class
 com/example/foodorderingapp/model/ItemLookupRequest.class
+com/example/foodorderingapp/config/WebConfig.class
 com/example/foodorderingapp/FoodOrderingAppApplication.class
 com/example/foodorderingapp/service/FoodItemSerice.class
 com/example/foodorderingapp/controller/StatusController.class

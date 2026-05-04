@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-app-backend
+  namespace: che-kube-admin-devspaces-ownaw0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: food-app-backend
+  template:
+    metadata:
+      labels:
+        app: food-app-backend
+    spec:
+      containers:
+      - name: backend
+        image:  quay.io/rhn_support_dmule/devspaces-demo-application-image:v1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres.che-kube-admin-devspaces-ownaw0.svc.cluster.local:5432/food_db"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "user"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "password"
+        - name: SPRING_SQL_INIT_MODE
+          value: "always"
+        - name: SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION
+          value: "true"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: food-app-backend-svc
+  namespace: che-kube-admin-devspaces-ownaw0
+spec:
+  selector:
+    app: food-app-backend
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: food-app-backend-route
+  namespace: che-kube-admin-devspaces-ownaw0
+spec:
+  to:
+    kind: Service
+    name: food-app-backend-svc
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge

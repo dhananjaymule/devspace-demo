@@ -1,5 +1,6 @@
 /projects/devspace-demo/src/main/java/com/example/foodorderingapp/controller/StatusController.java
 /projects/devspace-demo/src/main/java/com/example/foodorderingapp/model/FoodItem.java
+/projects/devspace-demo/src/main/java/com/example/foodorderingapp/WebConfig.java
 /projects/devspace-demo/src/main/java/com/example/foodorderingapp/model/ItemLookupRequest.java
 /projects/devspace-demo/src/main/java/com/example/foodorderingapp/service/FoodItemService.java
 /projects/devspace-demo/src/main/java/com/example/foodorderingapp/repository/FoodItemRepository.java

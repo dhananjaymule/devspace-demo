@@ -1,21 +1,21 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 const idInput = ref('')
 const foodItems = ref([])
 const error = ref(null)
 const loading = ref(false)
 
-// 1. COMPUTED PROPERTY: Calculates total cost whenever foodItems changes
 const totalCost = computed(() => {
   return foodItems.value.reduce((sum, item) => sum + item.price, 0)
 })
 
-// 2. FETCH ALL: Function to get everything
 const fetchAllItems = async () => {
   loading.value = true
   try {
-    const response = await fetch('/api/items')
+    const response = await fetch(`${API_BASE}/items`)
     if (!response.ok) throw new Error("Could not fetch items")
     foodItems.value = await response.json()
   } catch (err) {
@@ -25,28 +25,29 @@ const fetchAllItems = async () => {
   }
 }
 
-// 3. LIFECYCLE HOOK: Runs when the page first loads
 onMounted(() => {
   fetchAllItems()
 })
 
 const performSearch = async () => {
   if (!idInput.value.trim()) {
-    fetchAllItems() // If input is empty, just show all again
+    fetchAllItems() 
     return
   }
   
   loading.value = true
   try {
     const idArray = idInput.value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
-    const response = await fetch('/api/search', {
+    const response = await fetch(`${API_BASE}/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids: idArray })
     })
+    
+    if (!response.ok) throw new Error("Search failed on the server")
     foodItems.value = await response.json()
   } catch (err) {
-    error.value = "Search failed"
+    error.value = err.message
   } finally {
     loading.value = false
   }
